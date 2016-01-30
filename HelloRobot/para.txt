@@ -1,0 +1,4 @@
+map: roboticLabMap.png
+startLocation: 362 305 20
+robotSize: 30 30
+MapResolutionCM: 2.5
