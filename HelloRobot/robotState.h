@@ -1,9 +1,3 @@
-/*
- * robotState.h
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
 
 #ifndef ROBOTSTATE_H_
 #define ROBOTSTATE_H_

@@ -1,9 +1,3 @@
-/*
- * Main.cpp
- *
- *  Created on: Nov 18, 2015
- *      Author: colman
- */
 
 #include "Map.h"
 #include "STC.h"
@@ -16,7 +10,7 @@
 
 using namespace std;
 
-void printCoordinate(Coordinate coord) {
+void printCoordinate(coordinatePlace coord) {
 	cout << "(" << coord.first << "," << coord.second << ")" << endl;
 }
 int main() {
@@ -41,7 +35,7 @@ int main() {
 
 		// configure start position
 
-		Coordinate pixelCoord(initRobotPosition.getX(), initRobotPosition.getY());
+		coordinatePlace pixelCoord(initRobotPosition.getX(), initRobotPosition.getY());
 
 		printCoordinate(pixelCoord);
 		// translate to coarse grid
@@ -50,22 +44,16 @@ int main() {
 		printCoordinate(startPos);
 		printCoordinate(map.coarseToPixelCoordinate(startPos));
 		STC stc(map, startPos);
-		stc.buildGraph();
-		stc.printGraph();
-		stc.saveSpanningTreeToFile("roboticLabMap_spanningTree.png");
-		vector<realPosition> path = stc.realPath();
-		cout<<"numbers of real positions is: "<< path.size()<<endl;
+		stc.buildWorkingMap();
+		stc.printWorkingMap();
+		stc.saveDFSToFile("roboticLabMap_spanningTree.png");
+		vector<realPosition> path = stc.getRealWalkingPath();
 		wayPointManager wpm(path);
 		vector<realPosition> waypoints = wpm.getWaypoints();
-
 		wpm.printWaypoints();
-
-		//stc.savePathToFile(waypoints, "roboticLabMap_path.png");
-		robot robot("localhost", 6665, robotState.second, robotState.first, behavior::degressToRadians(initRobotPosition.getYaw()));
+		robot robot("localhost", 6665, robotState.second, robotState.first, initRobotPosition.getYaw()* M_PI / 180);
 		driver driver(&robot, waypoints);
 		driver.run();
-		cout<<"printWAy Pointsss"<< waypoints.size()<<endl;
-
 		return 0;
 }
 

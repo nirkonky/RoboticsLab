@@ -1,9 +1,4 @@
-/*
- * configuration.h
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
+
 #ifndef CONFIGURATION_H_
 #define CONFIGURATION_H_
 

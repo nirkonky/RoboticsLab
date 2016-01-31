@@ -1,9 +1,3 @@
-/*
- * Map.h
- *
- *  Created on: Nov 18, 2015
- *      Author: colman
- */
 
 #ifndef MAP_H_
 #define MAP_H_
@@ -17,10 +11,7 @@ class Map {
 private:
 	vector<unsigned char> image;
 	Grid map;
-	unsigned int mapWidth;
-	unsigned int mapHeight;
 
-	float mapResolution;
 	float robotSize;
 	int robotSizeInCells;
 	int inflationRadius;
@@ -28,17 +19,18 @@ private:
 	Grid fineGrid; // each cell in the size of the robot
 	Grid coarseGrid; // each cell in the size of 2x2 of the robot
 
-	bool checkIfCellIsOccupied(int i, int j);
 	void printGrid(const Grid &grid) const;
 	void reduceGrid(const Grid &originalGrid, Grid &reducedGrid, int reduceConstant);
-	bool checkIfReducedCellIsOccupied(int i, int j, const Grid &originalGrid, int reduceConstant) const;
 	void inflateCell(int i, int j);
 
 public:
-	Coordinate coarseToPixelCoordinate(Coordinate coarseGridCoord);
-	realPosition pixelToRobotPosition(Coordinate pixelCoord);
-	Coordinate pixelToCoarseCoordinate(Coordinate pixelCoord);
-	Coordinate fineToPixelCoordinate(Coordinate fineGridCoord);
+	unsigned int mapWidth;
+	unsigned int mapHeight;
+	float mapResolution;
+	coordinatePlace coarseToPixelCoordinate(coordinatePlace coarseGridCoord);
+	realPosition pixelToRobotPosition(coordinatePlace pixelCoord);
+	coordinatePlace pixelToCoarseCoordinate(coordinatePlace pixelCoord);
+	coordinatePlace fineToPixelCoordinate(coordinatePlace fineGridCoord);
 	Map(float mapResolution, float robotSize);
 	void loadMapFromFile(const char* filePath);
 	void saveMapToFile(const char* filePath);
@@ -49,7 +41,6 @@ public:
 	void buildFineGrid();
 	void buildCoarseGrid();
 	Grid getCoarseGrid();
-
 	virtual ~Map();
 };
 

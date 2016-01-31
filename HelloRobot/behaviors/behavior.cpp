@@ -1,26 +1,20 @@
-/*
- * behavior.cpp
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
 
 #include "behavior.h"
 
-behavior::behavior(robot *robot):_robot(robot), _multiplier(1) {}
+behavior::behavior(robot * robotb) : robotObject(robotb), factor(1) {}
 
 behavior::~behavior() {}
 
-behavior* behavior::addNext(behavior *next){
-	_nextBehaviors.push_back(next);
+behavior* behavior::pushNext(behavior *next){
+	getNextBehavior.push_back(next);
 	return this;
 }
 
-behavior *behavior::selectNext(realPosition targetWaypoint, double angle){
-	for (unsigned int i = 0; i < _nextBehaviors.size(); ++i) {
-		if (_nextBehaviors[i]->startCond(targetWaypoint, angle))
+behavior *behavior::getNext(realPosition targetWaypoint, double angle){
+	for (int i = 0; i < getNextBehavior.size(); ++i) {
+		if (getNextBehavior[i]->start(targetWaypoint, angle))
 		{
-			return _nextBehaviors[i];
+			return getNextBehavior[i];
 		}
 
 	}

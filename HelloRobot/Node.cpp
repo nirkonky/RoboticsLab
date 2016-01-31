@@ -1,9 +1,3 @@
-/*
- * Node.cpp
- *
- *  Created on: Dec 9, 2015
- *      Author: colman
- */
 
 #include "Node.h"
 
@@ -21,6 +15,9 @@ Position Node::getPosition() {
 	position.first = row;
 	position.second = col;
 	return position;
+}
+void Node::printNode(){
+	cout<<"("<<row<<","<<col<<")"<<endl;
 }
 
 Node::~Node() {

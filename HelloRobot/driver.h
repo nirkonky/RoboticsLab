@@ -1,9 +1,3 @@
-/*
- * driver.h
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
 
 #ifndef DRIVER_H_
 #define DRIVER_H_

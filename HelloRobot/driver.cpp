@@ -1,9 +1,3 @@
-/*
- * driver.cpp
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
 
 #include "defines.h"
 #include "driver.h"
@@ -18,10 +12,10 @@ driver::driver(robot *robot, vector<realPosition> waypoints) : _robot(robot), _w
 	_behaviorsArray[0] = new turnLeft(robot);
 	_behaviorsArray[1] = new moveForward(robot);
 	_behaviorsArray[2] = new turnRight(robot);
-	_behaviorsArray[0]->addNext(_behaviorsArray[1]);
-	_behaviorsArray[2]->addNext(_behaviorsArray[1]);
-	_behaviorsArray[1]->addNext(_behaviorsArray[0]);
-	_behaviorsArray[1]->addNext(_behaviorsArray[2]);
+	_behaviorsArray[0]->pushNext(_behaviorsArray[1]);
+	_behaviorsArray[2]->pushNext(_behaviorsArray[1]);
+	_behaviorsArray[1]->pushNext(_behaviorsArray[0]);
+	_behaviorsArray[1]->pushNext(_behaviorsArray[2]);
 
 }
 
@@ -39,29 +33,18 @@ void driver::run()
 	currentWaypoint.second = _robot->getXPos();
 	yaw = _robot->getYaw();
 	nextWaypoint = this->_waypoints[nextWaypointCounter];
-	//cout << "var p1 = { x:" << currentWaypoint.second << ", y:" << currentWaypoint.first << "}" << endl;
-	//cout << "var p2 = { x:" << nextWaypoint.second << ", y:" << nextWaypoint.first << "}" << endl;
-	double angle = behavior::radiansToDegrees(atan2( (nextWaypoint.first - currentWaypoint.first),nextWaypoint.second - currentWaypoint.second));
-
-	/*for (int i = 0; i < BEHAVIORS_ARRAY_SIZE; i++) {
-		if (_behaviorsArray[i] != NULL){
-			if (_behaviorsArray[i]->startCond(nextWaypoint, angle)){
-				_currBehavior = _behaviorsArray[i];
-				break;
-			}
-		}
-	}*/
+	double angle = (atan2((nextWaypoint.first - currentWaypoint.first),nextWaypoint.second - currentWaypoint.second)*180 / M_PI);
 
 	_currBehavior = _behaviorsArray[2];
 
-	if (!(_currBehavior->startCond(nextWaypoint, angle))){
+	if (!(_currBehavior->start(nextWaypoint, angle))){
 		return;
 	}
 
 	while (_currBehavior && nextWaypointCounter < _waypoints.size()) {
 		_robot->read();
-		while (!_currBehavior->stopCond(nextWaypoint, angle)) {
-			_currBehavior->action();
+		while (!_currBehavior->stop(nextWaypoint, angle)) {
+			_currBehavior->moving();
 			_robot->read();
 		}
 
@@ -73,11 +56,12 @@ void driver::run()
 			nextWaypointCounter++;
 			//currentWaypoint = this->_waypoints[nextWaypointCounter];
 			nextWaypoint = this->_waypoints[nextWaypointCounter];
-			angle = behavior::radiansToDegrees(atan2((nextWaypoint.first - currentWaypoint.first),nextWaypoint.second - currentWaypoint.second));
+
+			angle = (atan2((nextWaypoint.first - currentWaypoint.first),nextWaypoint.second - currentWaypoint.second)*180 / M_PI);
 		}
 		cout << "Next: ";
-		behavior:: printRealPosition(nextWaypoint);
-		_currBehavior = _currBehavior->selectNext(nextWaypoint, angle);
+		behavior:: printRealPos(nextWaypoint);
+		_currBehavior = _currBehavior->getNext(nextWaypoint, angle);
 }
 cout << "Manager stopped." << endl;
 }

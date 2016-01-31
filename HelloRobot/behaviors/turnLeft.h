@@ -1,9 +1,3 @@
-/*
- * turnLeft.h
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
 
 #ifndef TURNLEFT_H_
 #define TURNLEFT_H_
@@ -16,9 +10,9 @@ using namespace std;
 class turnLeft: public behavior {
 public:
 	turnLeft(robot* robot): behavior(robot){};
-	bool startCond(realPosition targetWaypoint, double angle);
-	bool stopCond(realPosition targetWaypoint, double angle);
-	void action(){_robot->setSpeed(0.0,TURN_SPEED * _multiplier);}
+	bool start(realPosition targetWaypoint, double angle);
+	bool stop(realPosition targetWaypoint, double angle);
+	void moving(){robotObject->setSpeed(0.0,TURN_SPEED * factor);}
 	void pause();
 	string name(){cout << "Turn Left:" << endl; return "TurnLeft";}
 };

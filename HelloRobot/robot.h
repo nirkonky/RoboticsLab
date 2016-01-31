@@ -1,9 +1,3 @@
-/*
- * robot.h
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
 
 #ifndef ROBOT_H_
 #define ROBOT_H_

@@ -1,9 +1,4 @@
-/*
- * wayPointManager.h
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
+
 
 #ifndef WAYPOINTMANAGER_H_
 #define WAYPOINTMANAGER_H_
@@ -13,8 +8,8 @@ using namespace std;
 
 class wayPointManager {
 public:
-	vector<realPosition> path;
-	vector<realPosition> waypoints;
+	vector<realPosition> pathToWayPoints;
+	vector<realPosition> wayPoints;
 	wayPointManager(vector<realPosition> &path);
 
 	vector<realPosition> getWaypoints();

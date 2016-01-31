@@ -3,76 +3,66 @@
 
 using namespace std;
 
-wayPointManager::wayPointManager(vector<realPosition> &path) : path(path) {
-	this->waypoints = path;
+wayPointManager::wayPointManager(vector<realPosition> &path) : pathToWayPoints(path)
+{
+	this->wayPoints = path;
 }
 
-vector<realPosition> wayPointManager::getWaypoints(){
-
-	double dx, dy;
-	int waypointsCounter = 0;
-	bool isXAxis;
+vector<realPosition> wayPointManager::getWaypoints()
+{
+	int counter = 0;
+	bool isXChanged;
+	double delta_x, delta_y;
 	vector<realPosition> waypoints;
-	waypoints.resize(path.size());
-
+	waypoints.resize(pathToWayPoints.size());
 	// handle first node is a waypoint exception
-	if (path.size() >= 2)
+	if (pathToWayPoints.size() > 2)
 	{
-		dx = path[0].first - path[1].first;
-		dy = path[0].second - path[1].second;
-		isXAxis = (dx == 0) ? false : true;
-		waypoints[0] = path[0];
-		waypointsCounter += 1;
+		delta_x = pathToWayPoints[0].first - pathToWayPoints[1].first;
+		delta_y = pathToWayPoints[0].second - pathToWayPoints[1].second;
+		waypoints[0] = pathToWayPoints[0];
+		counter += 1;
+		isXChanged = (delta_x == 0) ? false : true;
 	}
-
-	for (unsigned int i = 1; i < path.size()-1; ++i)
+	for (int i = 1; i < pathToWayPoints.size()-1; ++i)
 	{
 		// check movement
-		dx = path[i].first - path[i+1].first;
-		dy = path[i].second - path[i+1].second;
-
-		if (dx == 0)
+		delta_x = pathToWayPoints[i].first - pathToWayPoints[i+1].first;
+		delta_y = pathToWayPoints[i].second - pathToWayPoints[i+1].second;
+		//there is change in Y.
+		if (delta_x == 0)
 		{
-
-			// movement was detected in "second" axis.
-
-			// check if axis was changed, and add waypoint to the path
-			if (isXAxis)
+			if (isXChanged)
 			{
-				waypoints[waypointsCounter] = path[i];
-				waypointsCounter += 1;
+				waypoints[counter] = pathToWayPoints[i];
+				counter += 1;
 			}
-
-			isXAxis = false;
+			isXChanged = false;
 		}
-		else if (dy == 0)
+		//there is change in X.
+		else if (delta_y == 0)
 		{
-			// movement was detected in "first" axis.
-
-			// check if axis was changed, and add waypoint to the path
-			if (!isXAxis)
+			if (!isXChanged)
 			{
-				waypoints[waypointsCounter] = path[i];
-				waypointsCounter += 1;
+				waypoints[counter] = pathToWayPoints[i];
+				counter += 1;
 			}
 
-			isXAxis = true;
+			isXChanged = true;
 		}
 	}
 
-	waypoints.resize(waypointsCounter);
-	this->waypoints = waypoints;
-	//printWaypoints(); // uncomment to print the waypoints
+	waypoints.resize(counter);
+	this->wayPoints = waypoints;
 	return waypoints;
 }
 
 
 void wayPointManager::printWaypoints(){
-	cout<<this->waypoints.size()<<endl;
-	for (unsigned int i = 0; i < this->waypoints.size()-1; ++i)
+	cout<<this->wayPoints.size()<<endl;
+	for (unsigned int i = 0; i < this->wayPoints.size()-1; ++i)
 	{
-		cout << "puck( pose [" << waypoints[i].second << " " << waypoints[i].first << " 0 ] color \"red\" )" << endl;
-		//cout << i << ": " << "(" << waypoints[i].first << "," << waypoints[i].second << ")" << endl;
+		cout << "puck( pose [" << wayPoints[i].second << " " << wayPoints[i].first << " 0 ] color \"red\" )" << endl;
 	}
 }
 

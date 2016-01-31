@@ -1,9 +1,3 @@
-/*
- * moveForward.h
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
 
 #ifndef MOVEFORWARD_H_
 #define MOVEFORWARD_H_
@@ -19,9 +13,9 @@ class moveForward: public behavior {
 
 public:
 	moveForward(robot* robot): behavior(robot){};
-	bool startCond(realPosition targetWaypoint, double angle){return true;}
-	bool stopCond(realPosition targetWaypoint, double angle);
-	void action(){_robot->setSpeed(LINEAR_SPEED * _multiplier,0.0);}
+	bool start(realPosition targetWaypoint, double angle){return true;}
+	bool stop(realPosition targetWaypoint, double angle);
+	void moving(){robotObject->setSpeed(LINEAR_SPEED * factor,0.0);}
 	string name(){cout << "Move Forward:" << endl; return "Move Forward";}
 };
 

@@ -1,14 +1,11 @@
-/*
- * Node.h
- *
- *  Created on: Nov 18, 2015
- *      Author: colman
- */
 
 #ifndef NODE_H_
 #define NODE_H_
 
 #include <vector>
+#include <iostream>
+#include <iomanip>
+#include <stdlib.h>
 using namespace std;
 
 typedef pair<int, int> Position;
@@ -19,6 +16,7 @@ private:
 
 
 public:
+	void printNode();
 	int row, col;
 	bool visited;
 	vector<Node *> neighborsInSpanningTree;

@@ -1,9 +1,3 @@
-/*
- * robot.cpp
- *
- *  Created on: Jan 30, 2016
- *      Author: colman
- */
 
 #include "robot.h"
 robot::robot(string ip, int port, double x, double y, double yaw) {
