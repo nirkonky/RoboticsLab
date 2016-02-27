@@ -6,15 +6,13 @@
 #include "defines.h"
 using namespace std;
 
-
 class STC {
 private:
 	Map &map;
 	vector<vector<Node *> > workingMap;
 	position startPosition;
 	void DFS(Node* n);
-	position fineGridCoordinate(position coarseGridCoord, int corner);
-	void fillPath(vector<position> &path, Node *coarseGridNode, position fineGridCordy, int corner, position initialFineGridPosition);
+	void fillPath(vector<position> &path, Node *correntNode, position positionA, int state, position positionB);
 
 public:
 	void printPosition(position corrent);

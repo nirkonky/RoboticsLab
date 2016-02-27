@@ -66,8 +66,7 @@ void STC::printDFSFunc() {
 					{
 						cout << workingMap[i][j]->getPosition().first
 						<<"," << workingMap[i][j]->getPosition().second<< " --> "
-						<<workingMap[i][j]->neighborsList[q]->getPosition().first
-						<< ","
+						<<workingMap[i][j]->neighborsList[q]->getPosition().first<< ","
 						<<workingMap[i][j]->neighborsList[q]->getPosition().second
 						<<endl;
 					}
@@ -175,20 +174,13 @@ void STC::saveDFSToFile(const char* filePath) {
 
 
 vector<position> STC::walkingPath() {
-	cout<<"************************"<<endl;
-	cout<<"In the Walking Path!"<<endl;
 	vector<position> path;
 	Node *startNode = workingMap[startPosition.first][startPosition.second];
-	cout<<"Start Node: "<<endl;
 	startNode->printNode();
 	int initialDirection;
-	//up = 3;
-	//down  = 1;
-	//right  = 2;
-	//left = 0;
-	for (int i=0;i<4;i++)
+	int modulo = 4;
+	for (int i=0;i<modulo;i++)
 	{
-		cout<<startNode->edgeList[i]<<endl;
 		if (startNode->edgeList[i])
 		{
 			cout<<"i:"<<i<<endl;
@@ -196,310 +188,290 @@ vector<position> STC::walkingPath() {
 			break;
 		}
 	}
-	int initialCorner = (initialDirection + 2) % 4;
-	cout<<"int initialCorner = (initialDirection + 2) % 4 : "<< initialCorner<<endl;
-	position initialFineGridPosition = fineGridCoordinate(startPosition, initialCorner);
+	int initialCorner = (initialDirection + 2) % modulo;
+	position fineGridCoord(startPosition.first *2, startPosition.second *2);
+	if (initialCorner == 0)
+	{
+		fineGridCoord.second ++;
+	}
+	else if(initialCorner == 2)
+	{
+		fineGridCoord.first ++;
+	}
+	else if(initialCorner == 3)
+	{
+		fineGridCoord.second ++;
+		fineGridCoord.first ++;
+	}
 	path.resize(path.size()+1);
-	path[0] = map.fineToCordy(initialFineGridPosition);
-	fillPath(path, startNode, initialFineGridPosition, initialCorner, initialFineGridPosition);
+	path[0] = map.fineToCordy(fineGridCoord);
+	fillPath(path, startNode, fineGridCoord, initialCorner, fineGridCoord);
 	return path;
 }
 
 
-void STC::fillPath(vector<position> &path, Node *coarseGridNode, position fineGridCoord, int corner, position initialFineGridPosition) {
-	cout<<"*********************************"<<endl;
-	cout<<"In the fillPath func."<<endl;
-	if (fineGridCoord ==  initialFineGridPosition && path.size() > 1) {
+void STC::fillPath(vector<position> &path, Node *currentNode, position positionA, int next, position positionB) {
+	int modulo = 4;
+	if (positionA ==  positionB && path.size() > 1) {
 			//this if will happen when the start node = finish node and the path size  >1 (finished the path!);
-			cout<<" if fineGridCoord ==  initialFineGridPosition && path.size() > 1"<<endl;
 			cout<<"we have reached the end of out path!"<<endl;
-			// we've reached the end of our path
 			return;
 		}
+		int tables;
+		Node *nextNode;
+		int row,col;
+		int nextCorner;
+		position moveA,moveB,moveC,moveD;
 		//get the edge of the working node(in the first is the start node).
-		vector<bool> edges = coarseGridNode->edgeList;
-		//edge[3] = up
-		//edge[1] = down
-		//edge[2] = right
-		//edge[0] = left
-		cout<<"edges[0] left : "<<edges[0]<< " edges[1]:down "<<edges[1]<< " edges[2] :right "<< edges[2]
-		<< " edges[3] :up "<<edges[3]<<endl;
-		//this if check if in the edges i can go down and not left.
-		if (edges[(2 + corner) % 4] && !edges[(1 + corner) % 4]) {
-			cout << edges[(2 + corner) % 4] <<" and "<<!edges[(1 + corner) % 4]<< endl;
-			//cout<<"edges[(2 + corner) % 4: "<< edges[(2 + corner) % 4 <<endl;
-			cout<<"if if (edges[(2 + corner) % 4] && !edges[(1 + corner) % 4]"<<endl;
-			cout<<"go straight"<<endl;
+		vector<bool> edges = currentNode->edgeList;
+		if (edges[(2 + next) % modulo] && !edges[(1 + next) % modulo])
+		{
 			// go straight
-			path.resize(path.size()+2);
-			position firstStep;
-			position secondStep;
-			Node *nextNode;
-			int nextCorner = corner;
-			switch(corner) {
+			nextCorner = next;
+			switch(next)
+			{
 			case 0:
 				// facing left
-				firstStep.first = fineGridCoord.first;
-				firstStep.second = fineGridCoord.second - 1;
-				secondStep.first = fineGridCoord.first;
-				secondStep.second = fineGridCoord.second - 2;
-				nextNode = workingMap[coarseGridNode->row][coarseGridNode->col-1];
+				moveA.first = positionA.first;
+				moveA.second = positionA.second - 1;
+				moveB.first = positionA.first;
+				moveB.second = positionA.second - 2;
+				row = currentNode->row;
+				col = currentNode->col-1;
 				cout<<"Facing left!"<<endl;
-				printPosition(firstStep);
-				printPosition(secondStep);
 				break;
 			case 1:
-				// facing down
-				firstStep.first = fineGridCoord.first + 1;
-				firstStep.second = fineGridCoord.second;
-				secondStep.first = fineGridCoord.first + 2;
-				secondStep.second = fineGridCoord.second;
-				nextNode = workingMap[coarseGridNode->row+1][coarseGridNode->col];
-				cout<<"Facing down!"<<endl;
-								printPosition(firstStep);
-								printPosition(secondStep);
+				// facing up
+				moveA.first = positionA.first + 1;
+				moveA.second = positionA.second;
+				moveB.first = positionA.first + 2;
+				moveB.second = positionA.second;
+				row = currentNode->row+1;
+				col = currentNode->col;
 				break;
 			case 2:
 				// facing right
-				firstStep.first = fineGridCoord.first;
-				firstStep.second = fineGridCoord.second + 1;
-				secondStep.first = fineGridCoord.first;
-				secondStep.second = fineGridCoord.second + 2;
-				nextNode = workingMap[coarseGridNode->row][coarseGridNode->col+1];
-				cout<<"Facing right!"<<endl;
-								printPosition(firstStep);
-								printPosition(secondStep);
+				moveA.first = positionA.first;
+				moveA.second = positionA.second + 1;
+				moveB.first = positionA.first;
+				moveB.second = positionA.second + 2;
+				row = currentNode->row;
+				col = currentNode->col+1;
 				break;
 			case 3:
-				// facing up
-				firstStep.first = fineGridCoord.first -1;
-				firstStep.second = fineGridCoord.second;
-				secondStep.first = fineGridCoord.first - 2;
-				secondStep.second = fineGridCoord.second;
-				nextNode = workingMap[coarseGridNode->row-1][coarseGridNode->col];
-				cout<<"Facing up!"<<endl;
-								printPosition(firstStep);
-								printPosition(secondStep);
+				// facing down
+				moveA.first = positionA.first -1;
+				moveA.second = positionA.second;
+				moveB.first = positionA.first - 2;
+				moveB.second = positionA.second;
+				row = currentNode->row-1;
+				col = currentNode->col;
 				break;
 			}
-			path[path.size()-2] = map.fineToCordy(firstStep);
-			path[path.size()-1] = map.fineToCordy(secondStep);
-			fillPath(path, nextNode, secondStep, nextCorner, initialFineGridPosition);
+			nextNode = workingMap[row][col];
+			tables = 2;
+			path.resize(path.size()+tables);
+			path[path.size()-tables] = map.fineToCordy(moveA);
+			path[path.size()-tables+1] = map.fineToCordy(moveB);
+			fillPath(path, nextNode, moveB, nextCorner, positionB);
 			return;
 		}
-
-		if (edges[(1 + corner) % 4]) {
-			cout<<"edges[(1 + corner) % 4] : go right"<<endl;
+		if (edges[(1 + next) % modulo]) {
 			// go right
-			path.resize(path.size()+1);
-			position firstStep;
-			Node *nextNode;
-			int nextCorner = (corner + 3) % 4;
-			switch(corner) {
+			nextCorner = (next + 3) % modulo;
+
+			switch(next)
+			{
 			case 0:
 				// facing left
-				firstStep.first = fineGridCoord.first - 1;
-				firstStep.second = fineGridCoord.second;
-				nextNode = workingMap[coarseGridNode->row-1][coarseGridNode->col];
-				cout<<"Facing left!"<<endl;
-								printPosition(firstStep);
+				moveA.first = positionA.first - 1;
+				moveA.second = positionA.second;
+				row = currentNode->row-1;
+				col = currentNode->col;
 				break;
 			case 1:
 				// facing down
-				firstStep.first = fineGridCoord.first;
-				firstStep.second = fineGridCoord.second - 1;
-				nextNode = workingMap[coarseGridNode->row][coarseGridNode->col-1];
-				cout<<"Facing down!"<<endl;
-								printPosition(firstStep);
+				moveA.first = positionA.first;
+				moveA.second = positionA.second - 1;
+				row = currentNode->row;
+				col = currentNode->col-1;
 				break;
 			case 2:
 				// facing right
-				firstStep.first = fineGridCoord.first + 1;
-				firstStep.second = fineGridCoord.second;
-				nextNode = workingMap[coarseGridNode->row+1][coarseGridNode->col];
-				cout<<"Facing right!"<<endl;
-								printPosition(firstStep);
+				moveA.first = positionA.first + 1;
+				moveA.second = positionA.second;
+				row = currentNode->row+1;
+				col = currentNode->col;
 				break;
 			case 3:
 				// facing up
-				firstStep.first = fineGridCoord.first;
-				firstStep.second = fineGridCoord.second + 1;
-				nextNode = workingMap[coarseGridNode->row][coarseGridNode->col+1];
-				cout<<"Facing up!"<<endl;
-								printPosition(firstStep);
+				moveA.first = positionA.first;
+				moveA.second = positionA.second + 1;
+				row = currentNode->row;
+				col = currentNode->col+1;
 				break;
 			}
-			path[path.size()-1] = map.fineToCordy(firstStep);
-			fillPath(path, nextNode, firstStep, nextCorner, initialFineGridPosition);
+			nextNode = workingMap[row][col];
+			tables = 1;
+			path.resize(path.size()+tables);
+			path[path.size()-tables] = map.fineToCordy(moveA);
+			fillPath(path, nextNode, moveA, nextCorner, positionB);
 			return;
 		}
 
-		if (edges[(3 + corner) % 4] && !edges[(1 + corner) % 4]) {
+		if (edges[(3 + next) % modulo] && !edges[(1 + next) % modulo]) {
 			cout<<"go left: edges[(3 + corner) % 4] && !edges[(1 + corner) % 4]"<<endl;
 			// go left
-			path.resize(path.size()+3);
-			position firstStep;
-			position secondStep;
-			position thirdStep;
-			Node *nextNode;
-			int nextCorner = (corner + 1) % 4;
-			switch(corner) {
+			nextCorner = (next + 1) % modulo;
+			switch(next) {
 			case 0:
 				// facing left
-				firstStep.first = fineGridCoord.first;
-				firstStep.second = fineGridCoord.second - 1;
-				secondStep.first = firstStep.first + 1;
-				secondStep.second = firstStep.second;
-				thirdStep.first = secondStep.first + 1;
-				thirdStep.second = secondStep.second;
-				nextNode = workingMap[coarseGridNode->row+1][coarseGridNode->col];
-				cout<<"Facing left!"<<endl;
-								printPosition(firstStep);
-								printPosition(secondStep);
-								printPosition(thirdStep);
+				moveA.first = positionA.first;
+				moveA.second = positionA.second - 1;
+
+				moveB.first = moveA.first + 1;
+				moveB.second = moveA.second;
+
+				moveC.first = moveB.first + 1;
+				moveC.second = moveB.second;
+				row = currentNode->row+1;
+				col = currentNode->col;
 				break;
 			case 1:
-				// facing down
-				firstStep.first = fineGridCoord.first + 1;
-				firstStep.second = fineGridCoord.second;
-				secondStep.first = firstStep.first;
-				secondStep.second = firstStep.second + 1;
-				thirdStep.first = secondStep.first;
-				thirdStep.second = secondStep.second + 1;
-				nextNode = workingMap[coarseGridNode->row][coarseGridNode->col+1];
-				cout<<"Facing down!"<<endl;
-												printPosition(firstStep);
-												printPosition(secondStep);
-												printPosition(thirdStep);
+				// facing up
+				moveA.first = positionA.first + 1;
+				moveA.second = positionA.second;
+
+				moveB.first = moveA.first;
+				moveB.second = moveA.second + 1;
+
+				moveC.first = moveB.first;
+				moveC.second = moveB.second + 1;
+				row = currentNode->row;
+				col = currentNode->col+1;
 				break;
 			case 2:
 				// facing right
-				firstStep.first = fineGridCoord.first;
-				firstStep.second = fineGridCoord.second + 1;
-				secondStep.first = firstStep.first - 1;
-				secondStep.second = firstStep.second;
-				thirdStep.first = secondStep.first - 1;
-				thirdStep.second = secondStep.second;
-				nextNode = workingMap[coarseGridNode->row-1][coarseGridNode->col];
-				cout<<"Facing right!"<<endl;
-												printPosition(firstStep);
-												printPosition(secondStep);
-												printPosition(thirdStep);
+				moveA.first = positionA.first;
+				moveA.second = positionA.second + 1;
+
+				moveB.first = moveA.first - 1;
+				moveB.second = moveA.second;
+
+				moveC.first = moveB.first - 1;
+				moveC.second = moveB.second;
+				row = currentNode->row-1;
+				col = currentNode->col;
 				break;
 			case 3:
 				// facing up
-				firstStep.first = fineGridCoord.first -1;
-				firstStep.second = fineGridCoord.second;
-				secondStep.first = firstStep.first;
-				secondStep.second = firstStep.second - 1;
-				thirdStep.first = secondStep.first;
-				thirdStep.second = secondStep.second - 1;
-				nextNode = workingMap[coarseGridNode->row][coarseGridNode->col-1];
-				cout<<"Facing up!"<<endl;
-												printPosition(firstStep);
-												printPosition(secondStep);
-												printPosition(thirdStep);
+				moveA.first = positionA.first -1;
+				moveA.second = positionA.second;
+
+				moveB.first = moveA.first;
+				moveB.second = moveA.second - 1;
+
+				moveC.first = moveB.first;
+				moveC.second = moveB.second - 1;
+				row = currentNode->row;
+				col = currentNode->col-1;
 				break;
 			}
-			path[path.size()-3] = map.fineToCordy(firstStep);
-			path[path.size()-2] = map.fineToCordy(secondStep);
-			path[path.size()-1] = map.fineToCordy(thirdStep);
-			fillPath(path, nextNode, thirdStep, nextCorner, initialFineGridPosition);
+			nextNode = workingMap[row][col];
+			tables = 3;
+			path.resize(path.size()+tables);
+			path[path.size()-tables] = map.fineToCordy(moveA);
+			path[path.size()-tables+1] = map.fineToCordy(moveB);
+			path[path.size()-tables+2] = map.fineToCordy(moveC);
+			fillPath(path, nextNode, moveC, nextCorner, positionB);
 			return;
 		}
 
-		if (edges[(0 + corner) % 4] && !edges[(1 + corner) % 4] && !edges[(2 + corner) % 4] && !edges[(3 + corner) % 4]) {
-			cout<<" u turn edges[(0 + corner) % 4] && !edges[(1 + corner) % 4] && !edges[(2 + corner) % 4] && !edges[(3 + corner) % 4]"<<endl;
+		if (edges[(0 + next) % modulo] && !edges[(1 + next) % modulo] && !edges[(2 + next) % modulo] && !edges[(3 + next) % modulo]) {
 			// u turn
-			path.resize(path.size()+4);
-			position firstStep;
-			position secondStep;
-			position thirdStep;
-			position fourthStep;
-			Node *nextNode;
-			int nextCorner = (corner + 2) % 4;
-			switch(corner) {
+			nextCorner = (next + 2) % modulo;
+			switch(next)
+			{
 			case 0:
 				// facing left
-				firstStep.first = fineGridCoord.first;
-				firstStep.second = fineGridCoord.second - 1;
-				secondStep.first = firstStep.first + 1;
-				secondStep.second = firstStep.second;
-				thirdStep.first = secondStep.first;
-				thirdStep.second = secondStep.second + 1;
-				fourthStep.first = thirdStep.first;
-				fourthStep.second = thirdStep.second + 1;
-				nextNode = workingMap[coarseGridNode->row][coarseGridNode->col+1];
-				cout<<"Facing left!"<<endl;
-												printPosition(firstStep);
-												printPosition(secondStep);
-												printPosition(thirdStep);
-												printPosition(fourthStep);
+				moveA.first = positionA.first;
+				moveA.second = positionA.second - 1;
+
+				moveB.first = moveA.first + 1;
+				moveB.second = moveA.second;
+
+				moveC.first = moveB.first;
+				moveC.second = moveB.second + 1;
+
+				moveD.first = moveC.first;
+				moveD.second = moveC.second + 1;
+				row = currentNode->row;
+				col = currentNode->col+1;
 				break;
 			case 1:
 				// facing down
-				firstStep.first = fineGridCoord.first + 1;
-				firstStep.second = fineGridCoord.second;
-				secondStep.first = firstStep.first;
-				secondStep.second = firstStep.second + 1;
-				thirdStep.first = secondStep.first - 1;
-				thirdStep.second = secondStep.second;
-				fourthStep.first = thirdStep.first - 1;
-				fourthStep.second = thirdStep.second;
-				nextNode = workingMap[coarseGridNode->row-1][coarseGridNode->col];
-				cout<<"Facing down!"<<endl;
-																printPosition(firstStep);
-																printPosition(secondStep);
-																printPosition(thirdStep);
-																printPosition(fourthStep);
+				moveA.first = positionA.first + 1;
+				moveA.second = positionA.second;
+
+				moveB.first = moveA.first;
+				moveB.second = moveA.second + 1;
+
+				moveC.first = moveB.first - 1;
+				moveC.second = moveB.second;
+
+				moveD.first = moveC.first - 1;
+				moveD.second = moveC.second;
+				row = currentNode->row-1;
+				col = currentNode->col;
 				break;
 			case 2:
 				// facing right
-				firstStep.first = fineGridCoord.first;
-				firstStep.second = fineGridCoord.second + 1;
-				secondStep.first = firstStep.first - 1;
-				secondStep.second = firstStep.second;
-				thirdStep.first = secondStep.first;
-				thirdStep.second = secondStep.second - 1;
-				fourthStep.first = thirdStep.first;
-				fourthStep.second = thirdStep.second - 1;
-				nextNode = workingMap[coarseGridNode->row][coarseGridNode->col-1];
-				cout<<"Facing right!"<<endl;
-																printPosition(firstStep);
-																printPosition(secondStep);
-																printPosition(thirdStep);
-																printPosition(fourthStep);
+				moveA.first = positionA.first;
+				moveA.second = positionA.second + 1;
+
+				moveB.first = moveA.first - 1;
+				moveB.second = moveA.second;
+
+				moveC.first = moveB.first;
+				moveC.second = moveB.second - 1;
+
+				moveD.first = moveC.first;
+				moveD.second = moveC.second - 1;
+				row = currentNode->row;
+				col = currentNode->col-1;
 				break;
 			case 3:
 				// facing up
-				firstStep.first = fineGridCoord.first -1;
-				firstStep.second = fineGridCoord.second;
-				secondStep.first = firstStep.first;
-				secondStep.second = firstStep.second - 1;
-				thirdStep.first = secondStep.first + 1;
-				thirdStep.second = secondStep.second;
-				fourthStep.first = thirdStep.first + 1;
-				fourthStep.second = thirdStep.second;
-				nextNode = workingMap[coarseGridNode->row+1][coarseGridNode->col];
-				cout<<"Facing up!"<<endl;
-																printPosition(firstStep);
-																printPosition(secondStep);
-																printPosition(thirdStep);
-																printPosition(fourthStep);
+				moveA.first = positionA.first -1;
+				moveA.second = positionA.second;
+
+				moveB.first = moveA.first;
+				moveB.second = moveA.second - 1;
+
+				moveC.first = moveB.first + 1;
+				moveC.second = moveB.second;
+
+				moveD.first = moveC.first + 1;
+				moveD.second = moveC.second;
+				row = currentNode->row+1;
+				col = currentNode->col;
 				break;
 			}
-			path[path.size()-4] = map.fineToCordy(firstStep);
-			path[path.size()-3] = map.fineToCordy(secondStep);
-			path[path.size()-2] = map.fineToCordy(thirdStep);
-			path[path.size()-1] = map.fineToCordy(fourthStep);
-			fillPath(path, nextNode, fourthStep, nextCorner, initialFineGridPosition);
+			nextNode = workingMap[row][col];
+			tables = 4;
+			path.resize(path.size()+tables);
+			path[path.size()-tables] = map.fineToCordy(moveA);
+			path[path.size()-tables+1] = map.fineToCordy(moveB);
+			path[path.size()-tables+2] = map.fineToCordy(moveC);
+			path[path.size()-tables+3] = map.fineToCordy(moveD);
+			fillPath(path, nextNode, moveD, nextCorner, positionB);
 			return;
 		}
 		cout<<"Finished!"<<endl;
 }
 
 vector<realPosition> STC::getRealWalkingPath(){
-	//convert from Position to Real Position.
+	//convert from Position to Real Position of the robot.
 	vector<position> pixelPath = walkingPath();
 	vector<realPosition> realPath;
 	realPath.resize(pixelPath.size());
@@ -514,94 +486,56 @@ vector<realPosition> STC::getRealWalkingPath(){
 }
 
 
-
-
-position STC::fineGridCoordinate(position coarseGridCoord, int corner) {
-	cout<<"**********************************************************************"<<endl;
-	cout<<"Staring fineGridCoordinate func with params: position coarseGridCoord "
-			<<" ("<<coarseGridCoord.first<<" , "<<coarseGridCoord.second
-			<<")"<<" int corner "<<corner<<endl;
-	position fineGridCoord(coarseGridCoord.first *2, coarseGridCoord.second *2);
-	cout<<"x: "<<fineGridCoord.first<<"y: "<<fineGridCoord.second<<endl;
-	switch (corner)
-	{
-	case 0: // upper right
-		fineGridCoord.second ++;
-		break;
-	case 1: // upper left
-		// doing nothing
-		break;
-	case 2: // bottom left
-		fineGridCoord.first ++;
-		break;
-	case 3://bottom right
-		fineGridCoord.first ++;
-		fineGridCoord.second ++;
-		break;
-	}
-	cout<<"**********************************************"<<endl;
-	return fineGridCoord;
-}
-
 void STC::DFS(Node* currentNode)
 {
 	currentNode->visited = true;
 	int x_nodePosition = currentNode->getPosition().first;
 	int y_nodePosition = currentNode->getPosition().second;
-	//up = 3;
-	//down  = 1;
-	//right  = 2;
-	//left = 0;
 
-	//edge[3] = up
-	//edge[1] = down
-	//edge[2] = right
-	//edge[0] = left
-
-	//
-	int row = x_nodePosition - 1;
-	int col = y_nodePosition;
-	if (row >= 0 && row < workingMap.size() &&col < workingMap[0].size()&& col >= 0) {
-		if (workingMap[row][col] != NULL && !(workingMap[row][col]->visited)) {
-			currentNode->neighborsList[1] = workingMap[row][col];
-			currentNode->edgeList[1] = true;
-			currentNode->neighborsList[1]->edgeList[3] = true;
-			DFS(workingMap[row][col]);
-		}
-	}
-	// down
-	row = x_nodePosition + 1;
-	col = y_nodePosition;
-	if (row >= 0 && row < workingMap.size() &&col < workingMap[0].size()&& col >= 0) {
-		if (workingMap[row][col] != NULL && !workingMap[row][col]->visited) {
-			currentNode->neighborsList[3] = workingMap[row][col];
-			currentNode->edgeList[3] = true;
-			currentNode->neighborsList[3]->edgeList[1] = true;
-			DFS(workingMap[row][col]);
-		}
-	}
 
 	// right
-	row = x_nodePosition;
-	col = y_nodePosition + 1;
-	if (row >= 0 && row < workingMap.size() &&col < workingMap[0].size()&& col >= 0) {
-		if (workingMap[row][col] != NULL && !workingMap[row][col]->visited) {
+	int row = x_nodePosition;
+	int col = y_nodePosition + 1;
+	if (col < workingMap[0].size()&& col >= 0 && workingMap[row][col] != NULL && !workingMap[row][col]->visited)
+	{
 			currentNode->neighborsList[0] = workingMap[row][col];
 			currentNode->edgeList[0] = true;
 			currentNode->neighborsList[0]->edgeList[2] = true;
 			DFS(workingMap[row][col]);
-		}
 	}
+
+
+	// down
+	row = x_nodePosition + 1;
+	col = y_nodePosition;
+	if (row >= 0 && row < workingMap.size()&& workingMap[row][col] != NULL && !workingMap[row][col]->visited)
+	{
+			currentNode->neighborsList[3] = workingMap[row][col];
+			currentNode->edgeList[3] = true;
+			currentNode->neighborsList[3]->edgeList[1] = true;
+			DFS(workingMap[row][col]);
+	}
+	//up
+	row = x_nodePosition - 1;
+	col = y_nodePosition;
+	if (row >= 0 && row < workingMap.size()&& workingMap[row][col] != NULL && !(workingMap[row][col]->visited))
+	{
+			currentNode->neighborsList[1] = workingMap[row][col];
+			currentNode->edgeList[1] = true;
+			currentNode->neighborsList[1]->edgeList[3] = true;
+			DFS(workingMap[row][col]);
+	}
+
+
 	// left
 	row = x_nodePosition;
 	col = y_nodePosition - 1;
-	if (row >= 0 && row < workingMap.size() &&col < workingMap[0].size()&& col >= 0) {
-		if (workingMap[row][col] != NULL && !workingMap[row][col]->visited) {
+	if (col < workingMap[0].size() && col >= 0&& workingMap[row][col] != NULL && !workingMap[row][col]->visited)
+	{
 			currentNode->neighborsList[2] = workingMap[row][col];
 			currentNode->edgeList[2] = true;
 			currentNode->neighborsList[2]->edgeList[0] = true;
 			DFS(workingMap[row][col]);
-		}
 	}
 
 }

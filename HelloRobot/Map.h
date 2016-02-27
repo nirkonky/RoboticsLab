@@ -15,9 +15,7 @@ private:
 	float robotSize;
 	int robotSizeInCells;
 	int inflationRadius;
-
 	void printGrid(const Grid &grid) const;
-	void reduceGrid(const Grid &originalGrid, Grid &reducedGrid, int reduceConstant);
 	void inflateCell(int i, int j);
 
 	Grid fineGrid;
@@ -35,14 +33,11 @@ public:
 	robotBehavior fineToCordy(robotBehavior fineToCord);
 	void loadMapFromFile(const char* filePath);
 	void saveMapToFile(const char* filePath);
-	void inflateMap();
 	void buildFineGrid();
 	void buildCoarseGrid();
 	realPosition pixelToRobotPosition(robotBehavior pixelToRobotPos);
 	Grid getMapGrid();
 	Grid getCoarseGrid();
-	int getCoarseGridPixelWidth();
-	int getFineGridPixelWidth();
 	virtual ~Map();
 };
 

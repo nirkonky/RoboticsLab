@@ -5,7 +5,6 @@ bool behaviorForward::start(realPosition targetWaypoint, double degree)
 	{
 		return true;
 	}
-
 bool behaviorForward::stop(realPosition targetWaypoint, double angle){
 	currentWaypoint.first = robotObject->getYPos();
 	currentWaypoint.second = robotObject->getXPos();

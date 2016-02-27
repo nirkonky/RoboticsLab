@@ -6,7 +6,9 @@
 
 Map::Map(float mapResolution, float robotSize):mapResolution(mapResolution), robotSize(robotSize)
 {
+	//robotSizeInCells  = 0.025 / 0.3 = 0.083333333....
 	robotSizeInCells = robotSize / mapResolution;
+	//inflationRaduis = 0.02083333333....
 	inflationRadius = 0.25 * robotSizeInCells;
 }
 
@@ -29,71 +31,42 @@ void Map::saveMapToFile(const char* filePath) {
 
 	lodepng::encode(filePath, image, mapWidth, mapHeight);
 }
-
+/*
 void Map::inflateMap() {
-	vector<vector<bool> > originalMap;
-	originalMap.resize(mapHeight);
-	for (int i = 0; i < mapHeight; i++)
-		originalMap[i].resize(mapWidth);
 
-	for (int i = 0; i < mapHeight; i++) {
-		for (int j = 0; j < mapWidth; j++) {
-			originalMap[i][j] = map[i][j];
-		}
-	}
+}
+*/
 
-	for (int i = 0; i < mapHeight; i++)
-	{
-		for (int j = 0; j < mapWidth; j++)
-		{
-			if (originalMap[i][j])
-			{
-				for (int x = -inflationRadius+i; x<= inflationRadius+i; x++) {
-					for (int y = -inflationRadius+j; y<= inflationRadius+j; y++) {
-						// bounds check
-						if (x+i >= 0 && x < mapHeight && y >= 0 && y < mapWidth) {
-							map[x][y] = true;
-						}
-					}
-				}
-			}
-		}
-	}
+robotBehavior Map::coarseToCordy(robotBehavior coarseGridCordy)
+{
+	robotBehavior cordToRet;
+	cordToRet.first = coarseGridCordy.first * 2 * robotSizeInCells + robotSizeInCells;
+	cordToRet.second = coarseGridCordy.second * 2 * robotSizeInCells + robotSizeInCells;
+	return cordToRet;
 }
 
-
-robotBehavior Map::coarseToCordy(robotBehavior coarseGridCordy) {
-	robotBehavior pixelCordy;
-	pixelCordy.first = coarseGridCordy.first * 2 * robotSizeInCells + robotSizeInCells;
-	pixelCordy.second = coarseGridCordy.second * 2 * robotSizeInCells + robotSizeInCells;
-	return pixelCordy;
+robotBehavior Map::pixelToCordy(robotBehavior pixelCordy)
+{
+	robotBehavior coarseToRet;
+	coarseToRet.first = pixelCordy.first / robotSizeInCells / 2;
+	coarseToRet.second = pixelCordy.second / robotSizeInCells / 2;
+	return coarseToRet;
 }
 
-robotBehavior Map::pixelToCordy(robotBehavior pixelCordy) {
-	robotBehavior coarseCordy;
-	coarseCordy.first = pixelCordy.first / robotSizeInCells / 2;
-	coarseCordy.second = pixelCordy.second / robotSizeInCells / 2;
-	return coarseCordy;
+realPosition Map::pixelToRobotPosition(robotBehavior pixelCordy)
+{
+	realPosition robotPositionToRet;
+	robotPositionToRet.first = (pixelCordy.first - 0.5 * mapHeight) * mapResolution * -1;
+	robotPositionToRet.second = (pixelCordy.second - 0.5 * mapWidth) * mapResolution;
+	return robotPositionToRet;
 }
 
-realPosition Map::pixelToRobotPosition(robotBehavior pixelCordy){
-	realPosition robotPosition;
-	robotPosition.first = (pixelCordy.first - 0.5 * mapHeight) * mapResolution * -1;
-	robotPosition.second = (pixelCordy.second - 0.5 * mapWidth) * mapResolution;
-	return robotPosition;
-}
-
-robotBehavior Map::fineToCordy(robotBehavior fineGridCordy) {
-	robotBehavior pixelCordy;
-	pixelCordy.first = (fineGridCordy.first * robotSizeInCells) + (robotSizeInCells / 2);
-	pixelCordy.second = (fineGridCordy.second * robotSizeInCells) + (robotSizeInCells / 2);
-	cout<<"*********************************************"<<endl;
-	cout<<"In the fineToCordy Func!"<<endl;
-	cout<<"starting with robotBehavior fineGridCordy"<<endl;
-	cout<<fineGridCordy.first<<" , "<< fineGridCordy.second<<" To:"<<endl;
-	cout<<pixelCordy.first<< " , " << pixelCordy.second<< " Finished."<<endl;
-	cout<<"***********************************************"<<endl;
-	return pixelCordy;
+robotBehavior Map::fineToCordy(robotBehavior fineGridCordy)
+{
+	robotBehavior pixelCordToRet;
+	pixelCordToRet.first = (fineGridCordy.first * robotSizeInCells) + (robotSizeInCells / 2);
+	pixelCordToRet.second = (fineGridCordy.second * robotSizeInCells) + (robotSizeInCells / 2);
+	return pixelCordToRet;
 }
 
 
@@ -126,56 +99,110 @@ void Map::loadMapFromFile(const char* filePath) {
 			}
 		}
 	}
+	vector<vector<bool> > originalMap;
+		originalMap.resize(mapHeight);
+		for (int i = 0; i < mapHeight; i++)
+			originalMap[i].resize(mapWidth);
 
-}
+		for (int i = 0; i < mapHeight; i++) {
+			for (int j = 0; j < mapWidth; j++) {
+				originalMap[i][j] = map[i][j];
+			}
+		}
 
-
-
-void Map::reduceGrid(const Grid &originalGrid, Grid &reducedGrid, const int reduceConstant) {
-	int originalGridHeight = originalGrid.size();
-	int originalGridWidth = originalGrid[0].size();
-
-	int gridRows = originalGridHeight / reduceConstant;
-	int gridCols = originalGridWidth / reduceConstant;
-
-	reducedGrid.resize(gridRows);
-	for (int i = 0; i < gridRows; i++)
-		reducedGrid[i].resize(gridCols);
-
-	for (int i = 0; i < gridRows; i++)
-	{
-		for (int j = 0; j < gridCols; j++)
+		for (int i = 0; i < mapHeight; i++)
 		{
-			int startedR = i * reduceConstant;
-			int startedC = j * reduceConstant;
-			int gridHeight = originalGrid.size();
-			int gridWidth = originalGrid[0].size();
-			bool flag = false;
-			for (int x = startedR; x < startedR + reduceConstant; x++)
+			for (int j = 0; j < mapWidth; j++)
 			{
-				for (int y = startedC; y < startedC + reduceConstant; y++)
+				if (originalMap[i][j])
 				{
-					if (x >= gridHeight || y >= gridWidth)
-						continue; // boundary check
-					if (originalGrid[x][y])
-					{
-						flag= true;
+					for (int x = -inflationRadius+i; x<= inflationRadius+i; x++) {
+						for (int y = -inflationRadius+j; y<= inflationRadius+j; y++) {
+							if (x+i >= 0 && x < mapHeight && y >= 0 && y < mapWidth) {
+								map[x][y] = true;
+							}
+						}
 					}
 				}
 			}
-			reducedGrid[i][j] = flag;
 		}
-	}
+
 }
 
+//buildFineGrid (from pixel to robotSizeInCells)
+void Map::buildFineGrid() {
 
-void Map::buildFineGrid() {reduceGrid(map, fineGrid, robotSizeInCells);}
+	int originalGridHeight = map.size();
+	int originalGridWidth = map[0].size();
+	int gridRows = originalGridHeight / robotSizeInCells;
+	int gridCols = originalGridWidth / robotSizeInCells;
+	fineGrid.resize(gridRows);
+	for (int i = 0; i < gridRows; i++)
+		fineGrid[i].resize(gridCols);
 
-void Map::buildCoarseGrid() {reduceGrid(fineGrid, coarseGrid, 2);}
+		for (int i = 0; i < gridRows; i++)
+		{
+			for (int j = 0; j < gridCols; j++)
+			{
+				int startedR = i * robotSizeInCells;
+				int startedC = j * robotSizeInCells;
+				int gridHeight = map.size();
+				int gridWidth = map[0].size();
+				bool flag = false;
+				for (int x = startedR; x < startedR + robotSizeInCells; x++)
+				{
+					for (int y = startedC; y < startedC + robotSizeInCells; y++)
+					{
+						if (x >= gridHeight || y >= gridWidth)
+							continue; // boundary check
+						if (map[x][y])
+						{
+							flag= true;
+						}
+					}
+				}
+				fineGrid[i][j] = flag;
+			}
+		}
 
-int Map::getCoarseGridPixelWidth() {return robotSizeInCells * 2;}
+}
+//buildCoarseGrid (from fineGrid to CoarseGrid)
+void Map::buildCoarseGrid() {
+	int originalGridHeight = fineGrid.size();
+	int originalGridWidth = fineGrid[0].size();
 
-int Map::getFineGridPixelWidth() {return robotSizeInCells;}
+	int gridRows = originalGridHeight / 2;
+	int gridCols = originalGridWidth / 2;
+
+	coarseGrid.resize(gridRows);
+	for (int i = 0; i < gridRows; i++)
+		coarseGrid[i].resize(gridCols);
+
+		for (int i = 0; i < gridRows; i++)
+		{
+			for (int j = 0; j < gridCols; j++)
+			{
+				int startedR = i * 2;
+				int startedC = j * 2;
+				int gridHeight = map.size();
+				int gridWidth = map[0].size();
+				bool flag = false;
+				for (int x = startedR; x < startedR + 2; x++)
+				{
+					for (int y = startedC; y < startedC + 2; y++)
+					{
+						if (x >= gridHeight || y >= gridWidth)
+							continue;
+						if (fineGrid[x][y])
+						{
+							flag= true;
+						}
+					}
+				}
+				coarseGrid[i][j] = flag;
+			}
+		}
+}
 
 Grid Map::getMapGrid() {return map;}
 

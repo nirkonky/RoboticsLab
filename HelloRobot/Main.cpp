@@ -3,8 +3,13 @@
 #include "STC.h"
 #include "wayPointManager.h"
 #include "robot.h"
+#include "behavior.h"
+
+#include "defines.h"
+#include "behaviorForward.h"
+#include "behaviorLeft.h"
+#include "behaviorRight.h"
 #include "robotState.h"
-#include "driver.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -17,21 +22,19 @@ string mapPathFromFile;
 float mapSizeFromFile;
 float robotSizeFromFile;
 
-void printRobotBehavior(robotBehavior cordy)
+void printRobotBehavior(robotBehavior coordinate)
 {
-	cout << "(" << cordy.first << "," << cordy.second << ")" << endl;
+	cout << "(" << coordinate.first << "," << coordinate.second << ")" << endl;
 }
 
 void getConfiguration(const char* filePath){
 	ifstream confFile(filePath);
 	string line;
 	string parameterName;
-	cout<<"imhere!"<<endl;
 	// map path
 	getline(confFile, line);
 	istringstream mapPathStream(line);
 	mapPathStream >> parameterName >> mapPathFromFile;
-	//this->mapPath = mapPath;
 
 	// initial robot position
 	string initXStr, initYStr, initYawStr;
@@ -45,14 +48,12 @@ void getConfiguration(const char* filePath){
 	robotInitialFromFile.setY(initY);
 	robotInitialFromFile.setYaw(initYaw);
 
-	// robot size (assume to be squared)
 	string robotSizeStr;
 	getline(confFile, line);
 	istringstream robotSizeStream(line);
 	robotSizeStream >> parameterName >> robotSizeStr;
 	robotSizeFromFile = atof(robotSizeStr.c_str());
 
-	// map resolution
 	string mapResolutionStr;
 	getline(confFile, line);
 	istringstream mapResolutionStream(line);
@@ -61,40 +62,90 @@ void getConfiguration(const char* filePath){
 }
 int main() {
 
+	//reading the params from thepara.txt robot params.
 	getConfiguration("para.txt");
 	float mapResolution = mapSizeFromFile / 100;
 	float robotSize = robotSizeFromFile / 100;
+	//initalize the map with the params.
 	Map map(mapResolution, robotSize);
-
 	map.loadMapFromFile(mapPathFromFile.c_str());
-
-	map.inflateMap();
-
 	map.buildFineGrid();
 	map.buildCoarseGrid();
 
-	// configure start position
+	//Initial the robotState(x,y).
+	robotBehavior robotInitialState(robotInitialFromFile.getX(), robotInitialFromFile.getY());
 
-	robotBehavior pixelCoord(robotInitialFromFile.getX(), robotInitialFromFile.getY());
+	printRobotBehavior(robotInitialState);
+	//from pixel to robotPosition.
+	realPosition robotState = map.pixelToRobotPosition(robotInitialState);
+	//from pixel to Coordinate.
+	position startPos = map.pixelToCordy(robotInitialState);
 
-	printRobotBehavior(pixelCoord);
-	// translate to coarse grid
-	realPosition robotState = map.pixelToRobotPosition(pixelCoord);
-	position startPos = map.pixelToCordy(pixelCoord);
+
 	printRobotBehavior(startPos);
+
 	printRobotBehavior(map.coarseToCordy(startPos));
 	STC stc(map, startPos);
 	stc.buildWorkingMap();
 	stc.printWorkingMap();
+
 	stc.saveDFSToFile("roboticLabMap_spanningTree.png");
+	//get the path that the robot need to move.
 	vector<realPosition> path = stc.getRealWalkingPath();
+
 	wayPointManager wpm(path);
+
 	vector<realPosition> waypoints = wpm.getWaypoints();
 	wpm.printWaypoints();
 	robot robot("localhost", 6665, robotState.second, robotState.first, robotInitialFromFile.getYaw()* M_PI / 180);
-	driver driver(&robot, waypoints);
-	driver.run();
+	//start the driver.
+	//robot.
+	behavior *currBehavior;
+	behavior *behaviorList[3];
+
+	behaviorList[2] = new behaviorLeft(&robot);
+	behaviorList[0] = new behaviorForward(&robot);
+	behaviorList[1] = new behaviorRight(&robot);
+
+	behaviorList[0]->pushNext(behaviorList[1]);
+	behaviorList[0]->pushNext(behaviorList[2]);
+	behaviorList[2]->pushNext(behaviorList[0]);
+	behaviorList[1]->pushNext(behaviorList[0]);
+
+	//start reading.
+		robot.read();
+		int wayPointCounter = 0;
+		realPosition currentWaypoint;
+		realPosition nextWaypoint;
+		nextWaypoint = waypoints[wayPointCounter];
+		double angle = (atan2((nextWaypoint.first - robot.getYPos()),nextWaypoint.second - robot.getXPos())*180 / M_PI);
+		currBehavior = behaviorList[1];//start with turning left.
+
+		while (wayPointCounter < waypoints.size())
+		{
+			cout<<"im here!!!"<<endl;
+
+			//keep reading.
+			while (!currBehavior->stop(nextWaypoint, angle))
+			{
+				currBehavior->moving();
+			}
+
+			if (currBehavior->name() == "behavior Forward")
+			{
+				cout<<"in the move forward!"<<endl;
+				wayPointCounter++;
+				nextWaypoint = waypoints[wayPointCounter];
+				angle = (atan2((nextWaypoint.first - robot.getYPos()),nextWaypoint.second - robot.getXPos())*180 / M_PI);
+			}
+			cout << "Next wayPoint: ";
+			cout << "[" << nextWaypoint.second << "," << nextWaypoint.first << "]" << endl;
+			cout<<"With Angle:" <<angle<<endl;
+			cout << "Waypoint number: "<< wayPointCounter << endl;
+			currBehavior = currBehavior->getNext(nextWaypoint, angle);
+		  }
+	cout << "Manager stopped." << endl;
 	return 0;
-}
+	}
 
 
