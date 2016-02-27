@@ -8,23 +8,23 @@
 #include <stdlib.h>
 using namespace std;
 
-typedef pair<int, int> Position;
+typedef pair<int, int> position;
 
 class Node {
 private:
 
-
-
 public:
-	void printNode();
-	int row, col;
-	bool visited;
-	vector<Node *> neighborsInSpanningTree;
-	vector<bool> edgesToColor;
+	position printPosition();
 	Node(int row, int col);
-	virtual ~Node();
-	Position getPosition();
+	int row, col;
+	vector<Node *> neighborsList;
+	vector<bool> edgeList;
+	position getPosition();
+	bool visited;
 	bool isVisited();
+	void printNode();
+	virtual ~Node();
+
 };
 
 #endif /* NODE_H_ */

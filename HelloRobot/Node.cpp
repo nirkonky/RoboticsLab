@@ -1,26 +1,27 @@
 
 #include "Node.h"
 
-Node::Node(int row, int col) : row(row), col(col), visited(false) {
-	neighborsInSpanningTree.resize(4);
-	edgesToColor.resize(4);
-	for (int i = 0; i < edgesToColor.size(); ++i)
+Node::Node(int row, int col) : row(row), col(col), visited(false)
+{
+	neighborsList.resize(4);
+	edgeList.resize(4);
+	for (int i = 0; i < edgeList.size(); ++i)
 	{
-		edgesToColor[i] = false;
+		edgeList[i] = false;
 	}
 }
+position Node::printPosition(){
+	cout<<" ("<<row <<","<<col<<") "<<endl;
+}
 
-Position Node::getPosition() {
-	Position position;
+position Node::getPosition()
+{
+	position position;
 	position.first = row;
 	position.second = col;
 	return position;
 }
-void Node::printNode(){
-	cout<<"("<<row<<","<<col<<")"<<endl;
-}
+void Node::printNode(){cout<<"("<<row<<","<<col<<")"<<endl;}
 
-Node::~Node() {
-	// TODO Auto-generated destructor stub
-}
+Node::~Node() {}
 

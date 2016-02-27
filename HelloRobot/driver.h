@@ -3,7 +3,7 @@
 #define DRIVER_H_
 #include "defines.h"
 #include "robot.h"
-#include "behaviors/behavior.h"
+#include "behavior.h"
 #include <vector>
 
 using namespace std;
@@ -12,11 +12,11 @@ using namespace std;
 
 class driver {
 private:
-	robot *_robot;
-	behavior *_currBehavior;
-	behavior *_behaviorsArray[BEHAVIORS_ARRAY_SIZE];
-	vector<realPosition> _waypoints;
-	float _laserScanArray[SAMPLES];
+	robot *robotObject;
+	behavior *currBehavior;
+	behavior *behaviorList[BEHAVIORS_ARRAY_SIZE];
+	vector<realPosition> wayPointsList;
+	float laserScanAreaList[SAMPLES];
 
 public:
 

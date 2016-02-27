@@ -8,14 +8,12 @@ using namespace std;
 
 class wayPointManager {
 public:
+	wayPointManager(vector<realPosition> &path);
+	void printWaypoints();
 	vector<realPosition> pathToWayPoints;
 	vector<realPosition> wayPoints;
-	wayPointManager(vector<realPosition> &path);
-
 	vector<realPosition> getWaypoints();
-
-	void printWaypoints();
-
+	bool delta(double a,double b);
 	virtual ~wayPointManager();
 };
 

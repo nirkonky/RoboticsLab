@@ -4,9 +4,8 @@
 #include "defines.h"
 #include <iostream>
 
-Map::Map(float mapResolution, float robotSize) :
-	mapResolution(mapResolution), robotSize(robotSize) {
-
+Map::Map(float mapResolution, float robotSize):mapResolution(mapResolution), robotSize(robotSize)
+{
 	robotSizeInCells = robotSize / mapResolution;
 	inflationRadius = 0.25 * robotSizeInCells;
 }
@@ -63,32 +62,38 @@ void Map::inflateMap() {
 }
 
 
-coordinatePlace Map::coarseToPixelCoordinate(coordinatePlace coarseGridCoord) {
-	coordinatePlace pixelCoord;
-	pixelCoord.first = coarseGridCoord.first * 2 * robotSizeInCells + robotSizeInCells;
-	pixelCoord.second = coarseGridCoord.second * 2 * robotSizeInCells + robotSizeInCells;
-	return pixelCoord;
+robotBehavior Map::coarseToCordy(robotBehavior coarseGridCordy) {
+	robotBehavior pixelCordy;
+	pixelCordy.first = coarseGridCordy.first * 2 * robotSizeInCells + robotSizeInCells;
+	pixelCordy.second = coarseGridCordy.second * 2 * robotSizeInCells + robotSizeInCells;
+	return pixelCordy;
 }
 
-coordinatePlace Map::pixelToCoarseCoordinate(coordinatePlace pixelCoord) {
-	coordinatePlace coarseCoord;
-	coarseCoord.first = pixelCoord.first / robotSizeInCells / 2;
-	coarseCoord.second = pixelCoord.second / robotSizeInCells / 2;
-	return coarseCoord;
+robotBehavior Map::pixelToCordy(robotBehavior pixelCordy) {
+	robotBehavior coarseCordy;
+	coarseCordy.first = pixelCordy.first / robotSizeInCells / 2;
+	coarseCordy.second = pixelCordy.second / robotSizeInCells / 2;
+	return coarseCordy;
 }
 
-realPosition Map::pixelToRobotPosition(coordinatePlace pixelCoord){
+realPosition Map::pixelToRobotPosition(robotBehavior pixelCordy){
 	realPosition robotPosition;
-	robotPosition.first = (pixelCoord.first - 0.5 * mapHeight) * mapResolution * -1;
-	robotPosition.second = (pixelCoord.second - 0.5 * mapWidth) * mapResolution;
+	robotPosition.first = (pixelCordy.first - 0.5 * mapHeight) * mapResolution * -1;
+	robotPosition.second = (pixelCordy.second - 0.5 * mapWidth) * mapResolution;
 	return robotPosition;
 }
 
-coordinatePlace Map::fineToPixelCoordinate(coordinatePlace fineGridCoord) {
-	coordinatePlace pixelCoord;
-	pixelCoord.first = fineGridCoord.first * robotSizeInCells + robotSizeInCells / 2;
-	pixelCoord.second = fineGridCoord.second * robotSizeInCells + robotSizeInCells / 2;
-	return pixelCoord;
+robotBehavior Map::fineToCordy(robotBehavior fineGridCordy) {
+	robotBehavior pixelCordy;
+	pixelCordy.first = (fineGridCordy.first * robotSizeInCells) + (robotSizeInCells / 2);
+	pixelCordy.second = (fineGridCordy.second * robotSizeInCells) + (robotSizeInCells / 2);
+	cout<<"*********************************************"<<endl;
+	cout<<"In the fineToCordy Func!"<<endl;
+	cout<<"starting with robotBehavior fineGridCordy"<<endl;
+	cout<<fineGridCordy.first<<" , "<< fineGridCordy.second<<" To:"<<endl;
+	cout<<pixelCordy.first<< " , " << pixelCordy.second<< " Finished."<<endl;
+	cout<<"***********************************************"<<endl;
+	return pixelCordy;
 }
 
 
@@ -161,34 +166,20 @@ void Map::reduceGrid(const Grid &originalGrid, Grid &reducedGrid, const int redu
 			reducedGrid[i][j] = flag;
 		}
 	}
-
-	printGrid(reducedGrid);
 }
 
 
-void Map::buildFineGrid() {
-	reduceGrid(map, fineGrid, robotSizeInCells);
-}
+void Map::buildFineGrid() {reduceGrid(map, fineGrid, robotSizeInCells);}
 
-int Map::getCoarseGridPixelWidth() {
-	return robotSizeInCells * 2;
-}
+void Map::buildCoarseGrid() {reduceGrid(fineGrid, coarseGrid, 2);}
 
-int Map::getFineGridPixelWidth() {
-	return robotSizeInCells;
-}
+int Map::getCoarseGridPixelWidth() {return robotSizeInCells * 2;}
 
-Grid Map::getMapGrid() {
-	return map;
-}
+int Map::getFineGridPixelWidth() {return robotSizeInCells;}
 
-void Map::buildCoarseGrid() {
-	reduceGrid(fineGrid, coarseGrid, 2);
-}
+Grid Map::getMapGrid() {return map;}
 
-Grid Map::getCoarseGrid() {
-	return coarseGrid;
-}
+Grid Map::getCoarseGrid() {return coarseGrid;}
 
 void Map::printGrid(const Grid &grid) const {
 	int rows = grid.size();
@@ -211,7 +202,5 @@ void Map::printGrid(const Grid &grid) const {
 	}
 }
 
-Map::~Map() {
-	// TODO Auto-generated destructor stub
-}
+Map::~Map() {}
 

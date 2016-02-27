@@ -16,31 +16,33 @@ private:
 	int robotSizeInCells;
 	int inflationRadius;
 
-	Grid fineGrid; // each cell in the size of the robot
-	Grid coarseGrid; // each cell in the size of 2x2 of the robot
-
 	void printGrid(const Grid &grid) const;
 	void reduceGrid(const Grid &originalGrid, Grid &reducedGrid, int reduceConstant);
 	void inflateCell(int i, int j);
 
+	Grid fineGrid;
+	Grid coarseGrid;
+
+
+
 public:
+	Map(float mapResolution, float robotSize);
 	unsigned int mapWidth;
 	unsigned int mapHeight;
 	float mapResolution;
-	coordinatePlace coarseToPixelCoordinate(coordinatePlace coarseGridCoord);
-	realPosition pixelToRobotPosition(coordinatePlace pixelCoord);
-	coordinatePlace pixelToCoarseCoordinate(coordinatePlace pixelCoord);
-	coordinatePlace fineToPixelCoordinate(coordinatePlace fineGridCoord);
-	Map(float mapResolution, float robotSize);
+	robotBehavior coarseToCordy(robotBehavior coarseToCord);
+	robotBehavior pixelToCordy(robotBehavior pixelToCord);
+	robotBehavior fineToCordy(robotBehavior fineToCord);
 	void loadMapFromFile(const char* filePath);
 	void saveMapToFile(const char* filePath);
 	void inflateMap();
-	Grid getMapGrid();
-	int getCoarseGridPixelWidth();
-	int getFineGridPixelWidth();
 	void buildFineGrid();
 	void buildCoarseGrid();
+	realPosition pixelToRobotPosition(robotBehavior pixelToRobotPos);
+	Grid getMapGrid();
 	Grid getCoarseGrid();
+	int getCoarseGridPixelWidth();
+	int getFineGridPixelWidth();
 	virtual ~Map();
 };
 
