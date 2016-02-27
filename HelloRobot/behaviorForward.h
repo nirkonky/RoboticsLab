@@ -32,9 +32,6 @@ public:
 		return "behavior Forward";
 	}
 
-	bool isBehaviorForWard(){
-		return true;
-	}
 
 	bool start(realPosition targetWaypoint, double degree);
 

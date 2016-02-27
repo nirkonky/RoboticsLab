@@ -23,8 +23,8 @@ public:
 	behavior *getNext(realPosition targetWaypoint, double angle);
 	virtual bool start(realPosition targetWaypoint, double angle) = 0;
 	virtual bool stop(realPosition targetWaypoint, double angle) = 0;
+	//virtual string getName();
 	virtual void moving() = 0;
-	virtual bool isBehaviorForWard() = 0;
 	behavior(robot *robotb);
 
 	static void printRealPos(realPosition a){cout << "{ x:" << a.second << ", y:" << a.first << "}" << endl;}

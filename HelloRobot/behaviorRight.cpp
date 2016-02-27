@@ -4,7 +4,7 @@
 using namespace std;
 
 bool behaviorRight::start(realPosition targetWaypoint, double angle){
-	return (canRight(robotObject->getYaw(), angle));
+	return (canRight(robotObject->getYaw()*180/M_PI, angle));
 }
 behaviorRight::~behaviorRight(){}
 

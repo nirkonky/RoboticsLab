@@ -15,10 +15,6 @@ public:
 	{
 		return "behavior Left";
 	}
-	bool isBehaviorForWard()
-	{
-		return false;
-	}
 
 	void moving()
 	{

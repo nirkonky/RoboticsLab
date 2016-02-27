@@ -68,6 +68,7 @@ vector<realPosition> wayPointManager::getWaypoints()
 void wayPointManager::printWaypoints(){
 	for (int i = 0; i < this->wayPoints.size()-1; ++i)
 	{
+		//cout<<wayPoints[i].second<<" ,"<<  wayPoints[i].first << "]"<<endl;
 		cout << "puck( pose [" << wayPoints[i].second << " " << wayPoints[i].first << " 0 ] color \"red\" )" << endl;
 	}
 }

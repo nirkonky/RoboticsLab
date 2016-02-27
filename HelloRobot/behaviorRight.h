@@ -15,10 +15,6 @@ public:
 	{
 		return "behavior Right";
 	}
-	bool isBehaviorForWard()
-	{
-		return false;
-	}
 	bool start(realPosition targetWaypoint, double degree);
 	bool stop(realPosition targetWaypoint, double degree);
 	void moving()

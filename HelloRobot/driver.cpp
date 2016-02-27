@@ -12,15 +12,13 @@ driver::driver(robot *robot, vector<realPosition> waypoints) : robotObject(robot
 	//0 -> forward -> 1,2
 	//1 -> left -> 0
 	//2 ->right ->0
-	behaviorList[1] = new behaviorRight(robot);
 	behaviorList[2] = new behaviorLeft(robot);
 	behaviorList[0] = new behaviorForward(robot);
-
-	behaviorList[0]->pushNext(behaviorList[2]);
+	behaviorList[1] = new behaviorRight(robot);
 	behaviorList[0]->pushNext(behaviorList[1]);
+	behaviorList[0]->pushNext(behaviorList[2]);
 	behaviorList[2]->pushNext(behaviorList[0]);
 	behaviorList[1]->pushNext(behaviorList[0]);
-
 }
 
 void driver::run()
@@ -31,32 +29,29 @@ void driver::run()
 	realPosition currentWaypoint;
 	realPosition nextWaypoint;
 	nextWaypoint = this->wayPointsList[wayPointCounter];
-
 	double angle = (atan2((nextWaypoint.first - robotObject->getYPos()),nextWaypoint.second - robotObject->getXPos())*180 / M_PI);
 	currBehavior = behaviorList[1];//start with turning left.
 
 	while (wayPointCounter < wayPointsList.size())
 	{
 		//keep reading.
-		//dont stop until you get the right angle.
 		while (!currBehavior->stop(nextWaypoint, angle))
 		{
 			currBehavior->moving();
 		}
 
-		if (currBehavior->isBehaviorForWard() == 0)
+		if (currBehavior->name() == "behavior Forward")
 		{
-			//now move forward.
+			cout<<"in the move forward!"<<endl;
+			wayPointCounter++;
 			nextWaypoint = this->wayPointsList[wayPointCounter];
 			angle = (atan2((nextWaypoint.first - robotObject->getYPos()),nextWaypoint.second - robotObject->getXPos())*180 / M_PI);
-			wayPointCounter++;
 		}
 		cout << "Next wayPoint: ";
 		cout << "{ x:" << nextWaypoint.second << ", y:" << nextWaypoint.first << "}" << endl;
-		cout<<"With Angle " << angle << endl;
 		cout << "Waypoint number: "<< wayPointCounter << endl;
 		currBehavior = currBehavior->getNext(nextWaypoint, angle);
-
+		cout<<"angle:" <<angle<<endl;
 }
 cout << "Manager stopped." << endl;
 }
